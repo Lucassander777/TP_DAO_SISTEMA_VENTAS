@@ -75,7 +75,7 @@ class PromoNxM(Promocion):
     def calcular_descuento(self, item_precio: Decimal, cantidad_comprada: int) -> Decimal:
         if not self.aplica(cantidad_comprada):
             return Decimal("0.00")
-        grupos = cantidad_compradas // self.lleva
+        grupos = cantidad_comprada // self.lleva
         unidades_gratis = grupos * (self.lleva - self.paga)
         return item_precio * Decimal(unidades_gratis)
         
