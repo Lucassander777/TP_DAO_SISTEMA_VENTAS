@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from decimal import Decimal
+from domain.exceptions import EstadoDocumentoException
 
 class ItemOrdenCompra:
     def __init__(self, producto, stock_al_generar: int, minimo_al_generar: int, cantidad_sugerida: int, cantidad_pedida: int, cantidad_recibida: int, costo_unitario: Decimal):
@@ -26,9 +27,14 @@ class OrdenCompra:
         self.items = [] # Lista de ItemOrdenCompra
 
     def aprobar(self, usuario):
-        pass
+        if self.estado != "Borrador":
+            raise EstadoDocumentoException(f"No se puede aprobar una orden en estado: {self.estado}")
+        self.estado = "Aprobada"
+
     def cancelar(self, motivo: str):
-        pass
+        if self.estado in ["Recibida", "Cancelada"]:
+            raise EstadoDocumentoException("No se puede cancelar una orden que ya fue recibida o cancelada previamente.")
+        self.estado = "Cancelada"
 
 class ItemRecepcion:
     def __init__(self, item_orden, cantidad: int, costo_unitario: Decimal, lote=None):

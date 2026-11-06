@@ -1,4 +1,5 @@
 from datetime import datetime
+from domain.exceptions import EstadoDocumentoException
 
 class ItemConteo:
     def __init__(self, producto, cantidad_sistema: int, cantidad_contada: int, diferencia: int, lote=None):
@@ -19,13 +20,25 @@ class InventarioFisico:
         self.items = [] # Lista de ItemConteo
 
     def iniciar(self):
-        pass
+        if self.estado != "Planificado":
+            raise EstadoDocumentoException("Solo se pueden iniciar inventarios planificados.")
+        self.estado = "En Proceso"
+
     def aprobar(self, usuario):
-        pass
+        if self.estado != "Cerrado":
+            raise EstadoDocumentoException("Solo se pueden aprobar inventarios cerrados.")
+        self.aprobado_por = usuario
+
     def cerrar(self):
-        pass
+        if self.estado != "En Proceso":
+            raise EstadoDocumentoException("El inventario debe estar en proceso para cerrarlo.")
+        self.estado = "Cerrado"
+        self.fecha_cierre = datetime.now()
+
     def aplicar(self):
-        pass
+        if not self.aprobado_por:
+            raise EstadoDocumentoException("El inventario debe estar aprobado antes de aplicar las diferencias.")
+        self.estado = "Aplicado"
 
 class AjusteStock:
     def __init__(self, id_ajuste: int, tipo : int, fecha: datetime, estado: str, cantidad_ajuste:int, motivo: str, producto, ubicacion, usuario):

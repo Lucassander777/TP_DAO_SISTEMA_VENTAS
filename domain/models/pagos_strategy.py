@@ -3,6 +3,9 @@ from decimal import Decimal
 
 class MedioPago(ABC):
     @abstractmethod
+    def validar(self, monto: Decimal):
+        pass
+    @abstractmethod
     def procesar_pago(self, monto: Decimal):
         pass
 
@@ -10,7 +13,7 @@ class PagoEfectivo(MedioPago):
     def procesar_pago(self, monto: Decimal):
         pass
 
-class PagoTrajeta(MedioPago):
+class PagoTarjeta(MedioPago):
     def __init__(self, numero_tarjeta: str, cuotas: int):
         self.numero_tarjeta = numero_tarjeta
         self.cuotas = cuotas

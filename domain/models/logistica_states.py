@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from domain.exceptions import TransicionEstadoInvalidaException
 
 class EstadoBulto(ABC):
     @abstractmethod
@@ -23,105 +24,99 @@ class EstadoBulto(ABC):
 
 class Preparado(EstadoBulto):
     def precintar(self, bulto):
-        # Lógica para precintar el bulto y cambiar el estado
-        pass
+        bulto.estado_actual = Precintado()
 
     def despachar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto debe estar precintado para despacharse.")
 
     def recibir(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("No se puede recibir un bulto recién preparado.")
 
     def verificar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("No se puede verificar un bulto recién preparado.")
 
     def rechazar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("No se puede rechazar un bulto recién preparado.")
 
 class Precintado(EstadoBulto):
     def precintar(self, bulto):
-        # Lógica para precintar el bulto y cambiar el estado
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está precintado.")
     
     def despachar(self, bulto):
-        pass
+        bulto.estado_actual = EnTransito()
     
     def recibir(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto debe despacharse antes de recibirse.")
     
     def verificar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto debe recibirse antes de verificarse.")
     
     def rechazar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto debe recibirse antes de rechazarse.")
 
 class EnTransito(EstadoBulto):
     def precintar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está en tránsito.")
     
     def despachar(self, bulto):
-        # Lógica para despachar el bulto y cambiar el estado
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya fue despachado.")
     
     def recibir(self, bulto):
-        pass
+        bulto.estado_actual = Recibido()
     
     def verificar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto debe recibirse antes de verificarse.")
     
     def rechazar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto debe recibirse antes de rechazarse.")
 
 class Recibido(EstadoBulto):
     def precintar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya fue recibido.")
     
     def despachar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya fue recibido.")
     
     def recibir(self, bulto):
-        # Lógica para recibir el bulto y cambiar el estado
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya fue recibido.")
     
     def verificar(self, bulto):
-        pass
+        bulto.estado_actual = Verificado()
     
     def rechazar(self, bulto):
-        pass
+        bulto.estado_actual = Rechazado()
 
 class Verificado(EstadoBulto):
     def precintar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está verificado, ciclo terminado.")
     
     def despachar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está verificado, ciclo terminado.")
     
     def recibir(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está verificado, ciclo terminado.")
     
     def verificar(self, bulto):
-        # Lógica para verificar el bulto y cambiar el estado
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está verificado.")
     
     def rechazar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está verificado y no puede rechazarse.")
 
 class Rechazado(EstadoBulto):
     def precintar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto fue rechazado, ciclo terminado.")
     
     def despachar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto fue rechazado, ciclo terminado.")
     
     def recibir(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto fue rechazado, ciclo terminado.")
     
     def verificar(self, bulto):
-        pass
+        raise TransicionEstadoInvalidaException("El bulto fue rechazado y no puede verificarse.")
     
     def rechazar(self, bulto):
-        # Lógica para rechazar el bulto y cambiar el estado
-        pass
+        raise TransicionEstadoInvalidaException("El bulto ya está rechazado.")
 
     
 

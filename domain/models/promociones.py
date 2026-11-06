@@ -40,9 +40,13 @@ class DescuentoPorcentaje(Promocion):
         self.porcentaje = porcentaje
 
     def aplica(self, item) -> bool:
-        pass
+        hoy = date.today()
+        return self.activa and (self.vigente_desde <= hoy <= self.vigente_hasta)
+    
     def calcular_descuento(self, item) -> Decimal:
-        pass
+        if not self.aplica(item):
+            return Decimal("0.00")
+        return item.precio * (self.porcentaje / Decimal("100"))
 
 class DescuentoMontoFijo(Promocion):
     def __init__(self, nombre: str, descripcion: str, vigente_desde: date, vigente_hasta: date, activa: bool, monto: Decimal):
@@ -50,9 +54,13 @@ class DescuentoMontoFijo(Promocion):
         self.monto = monto
 
     def aplica(self, item) -> bool:
-        pass
+        hoy = date.today()
+        return self.activa and (self.vigente_desde <= hoy <= self.vigente_hasta)
+    
     def calcular_descuento(self, item) -> Decimal:
-        pass
+        if not self.aplica(item):
+            return Decimal("0.00")
+        return min(self.monto, item.precio)
 
 class PromoNxM(Promocion):
     def __init__(self, nombre: str, descripcion: str, vigente_desde: date, vigente_hasta: date, activa: bool, lleva: int, paga: int):
@@ -60,10 +68,17 @@ class PromoNxM(Promocion):
         self.lleva = lleva
         self.paga = paga
 
-    def aplica(self, item) -> bool:
-        pass
-    def calcular_descuento(self, item) -> Decimal:
-        pass
+    def aplica(self, cantidad_comprada: int) -> bool:
+        hoy = date.today()
+        return self.activa and (self.vigente_desde <= hoy <= self.vigente_hasta) and (cantidad_comprada >= self.lleva)
+    
+    def calcular_descuento(self, item_precio: Decimal, cantidad_comprada: int) -> Decimal:
+        if not self.aplica(cantidad_comprada):
+            return Decimal("0.00")
+        grupos = cantidad_compradas // self.lleva
+        unidades_gratis = grupos * (self.lleva - self.paga)
+        return item_precio * Decimal(unidades_gratis)
+        
 
 class DescuentoAplicado:
     def __init__(self, id_descuento: int, monto: Decimal, origen: str, descripcion: str):

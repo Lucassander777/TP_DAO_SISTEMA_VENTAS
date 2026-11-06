@@ -24,7 +24,11 @@ class CuentaCorriente:
         self.activa = activa
 
     def puede_cargar(self, monto: Decimal) -> bool:
-        pass
+        """Verifica si el cliente tiene un margen para comprar a cuenta."""
+        if not self.activa:
+            return False
+        margen_disponible = self.saldo + self.limite_credito
+        return margen_disponible >= monto
 
 class MovimientoCuenta:
     def __init__(self, id_movimiento: int, fecha: datetime, tipo: str, monto: Decimal, saldo_posterior: Decimal, venta=None):
