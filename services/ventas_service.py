@@ -12,19 +12,24 @@ class VentaService:
         self.dao = venta_dao
         self.inventario_service = inventario_service
 
-    def procesar_venta_completa(self, cajero, local, carrito_items: list, medio_pago: MedioPago) -> Venta:
+    def procesar_venta_completa(self, cajero, local, carrito_items: list, medio_pago: MedioPago, promocion=None) -> Venta:
         """Orquesta todo el flujo de una venta: creación, descuento de stock, cobro y facturación. carrito_items es una lista de diccionarios con {'producto': prod, 'cantidad': cant, 'precio': precio}"""
         if not carrito_items:
             raise NegocioException("No se puede procesaro una venta sin productos en el carrito")
 
-        # 1- Armamos la cabecera de la venta y calculamos el total
-        total_venta = sum(item['cantidad'] * item['precio'] for item in carrito_items)
+        # 1- Calculamos el total bruto inical
+        total_bruto = sum(item['cantidad'] * item['precio'] for item in carrito_items)
+        total_venta = Decimal(str(total_bruto))
+
+        if promocion is not None and promocion.aplica(carrito_items):
+            descuento = promocion.calcular_descuento(carrito_items)
+            total_venta -= descuento
 
         nueva_venta = Venta(
             id_venta=None,
             fecha=datetime.now(),
             estado="Completada",
-            total=Decimal(total_venta),
+            total=total_venta,
             cajero=cajero,
             local=local
         )

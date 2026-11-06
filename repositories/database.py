@@ -63,10 +63,12 @@ class Database:
                 nombre TEXT NOT NULL,
                 precio_venta REAL NOT NULL,
                 costo REAL NOT NULL,
+                stock_actual INTEGER DEFAULT 0, 
+                stock_minimo INTEGER DEFAULT 5,
                 activo BOOLEAN NOT NULL DEFAULT 1,
                 id_categoria INTEGER,
                 id_proveedor INTEGER,
-                FOREIGN KEY (id_categoria) REFERENCES Categoria(id),
+                FOREIGN KEY (id_categoria) REFERENCES Categorias(id),
                 FOREIGN KEY (id_proveedor) REFERENCES Proveedores(id)
             )
         """)
@@ -85,7 +87,7 @@ class Database:
             )
         """)
         # ----------
-        # INVENTARIO (dependee de productos y ubicaciones)
+        # INVENTARIO (depende de productos y ubicaciones)
         # ----------
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Stock(
@@ -202,6 +204,46 @@ class Database:
                 numero TEXT NOT NULL,
                 fecha DATETIME NOT NULL,
                 FOREIGN KEY (id_venta) REFERENCES Ventas(id)
+            )
+        """)
+
+        # ----------
+        # COMPRAS
+        # ----------
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS OrdenesCompra(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha TEXT NOT NULL,
+                estado TEXT NOT NULL,
+                total REAL,
+                id_proveedor INTEGER,
+                FOREIGN KEY (id_proveedor) REFERENCES Proveedores(id)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS DetalleOrdenCompra(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_orden INTEGER,
+                id_producto INTEGER,
+                cantidad INTEGER,
+                precio_unitario REAL,
+                FOREIGN KEY (id_orden) REFERENCES OrdenCompra(id),
+                FOREIGN KEY (id_producto) REFERENCES Productos(id)
+            )
+        """)
+
+        # ----------
+        # CLIENTES PARA CUENTA CORRIENTE
+        # ----------
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS Clientes(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                dni TEXT UNIQUE NOT NULL,
+                saldo REAL DEFAULT 0.0,
+                limite_credito REAL DEFAULT 100000.0,
+                activo BOOLEAN DEFAULT 1
             )
         """)
 

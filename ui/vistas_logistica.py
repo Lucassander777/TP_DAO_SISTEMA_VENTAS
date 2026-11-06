@@ -1,40 +1,45 @@
-def mostrar_menu_logistica(logistica_service):
-    while True:
-        print("\n--- MÓDULO DE LOGÍSTICA ---")
-        print("1. Armar nuevo bulto")
-        print("2. Precintar bulto existente")
-        print("3. Despachar bulto")
-        print("4. Volver al menú principal")
+import tkinter as tk
+from tkinter import ttk
 
-        opcion = input("\nOpción:")
+def mostrar_menu_logistica(ventana_padre, logistica_service):
+    ventana_log = tk.TopLevel(ventana_padre)
+    ventana_log.tittle("Módulo de Logística - Armar Bulto")
+    ventana_log.geometry("350x250")
 
-        if opcion == '1':
-            print("\n[ARMADO DE BULTO]")
-            codigo = input("Ingrese código del bulto (ej. BULT-001):")
-            usuario = input("Ingrese su nombre de usuario:")
+    lbl_instruccion = ttk.Label(ventana_log, text="Ingrese los daotos del nuevo bulto:")
+    lbl_instruccion.pack(pady=10)
 
-            try:
-                bulto = logistica_service.armar_bulto(
-                    codigo=codigo,
-                    origen=None,
-                    destino=None,
-                    items_dict={},
-                    usuario=usuario
-                )
-                print(f"Bulto {bulto.codigo} creado en estado: {bulto.estado_actual.__class__.__name__}")
-            except Exception as e:
-                print(f"Error al armar el bulto: {e}")
+    lbl_codigo = ttk.Label(ventana_log, text="Código del Bulto:")
+    lbl_codigo.pack()
+    entry_codigo = ttk.Entry(ventana_log, width=30)
+    entry_codigo.pack(pady=5)
 
-        elif opcion == '2':
-            id_bulto = int(input("Ingrese el ID numérico del bulto a precintar:"))
-            precinto = input("Ingrese código del precinto:")
-            usuario = input("Ingrese su nombre de usuario:")
+    lbl_usuario = ttk.Label(ventana_log, text="Usuario:")
+    lbl_usuario.pack()
+    entry_usuario = ttk.Entry(ventana_log, width=30)
+    entry_usuario.pack(pady=5)
 
-            try:
-                logistica_service.precintar_bulto(id_bulto, usuario, precinto)
-                print("Bulto precintado con éxito.")
-            except Exception as e:
-                print(f"Error: {e}")
+    lbl_resultado = ttk.Label(ventana_log, text="", foreground="blue")
+    lbl_resultado.pack(pady=5)
 
-        elif opcion == '4':
-            break
+    def armar_bulto_click():
+        codigo_ingresado = entry_codigo.get()
+        usuario_ingresado = entry_usuario.get()
+
+        try:
+            bulto = logistica_service.armar_bulto(
+                codigo=codigo_ingresado,
+                origen=None,
+                destino=None,
+                items_dict={},
+                usuario=usuario_ingresado
+            )
+            lbl_resultado.config(text=f"Bulto {bulto.codigo} armado exitosamente", foreground="green")
+            entry_codigo.delete(0, tk.END)
+            entry_usuario.delete(0, tk.END)
+
+        except Exception as e:
+            lbl_resultado.config(text=f"Error: {e}", foreground="red")
+
+    btn_guardar = ttk.Button(ventana_log, text="Guardar Bulto", command=armar_bulto_click)
+    btn_guardar.pack(pady=15)
