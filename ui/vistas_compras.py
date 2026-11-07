@@ -15,7 +15,7 @@ def mostrar_menu_compras(ventana_padre, compras_service):
     tabla_faltantes.heading("producto", text="Producto")
     tabla_faltantes.heading("stock_actual", text="Stock Actual")
     tabla_faltantes.heading("stock_minimo", text="Stock Mín.")
-    tabla_faltantes.heading("a comprar", text="Cant. a Reponer")
+    tabla_faltantes.heading("a_comprar", text="Cant. a Reponer")
 
     tabla_faltantes.column("producto", width=180)
     tabla_faltantes.column("stock_actual", width=100, anchor="center")
@@ -52,7 +52,7 @@ def mostrar_menu_compras(ventana_padre, compras_service):
 
     btn_generar = ttk.Button(frame_sugeridas, text="Calcular Faltantes y Sugerir Compra", command=calcular_sugeridas)
     btn_generar.pack(pady=10)
-    
+
 
     
     

@@ -3,7 +3,7 @@ from decimal import Decimal
 
 class ItemVenta:
     def __init__(self, producto, cantidad: int, precio_unitario: Decimal):
-        self.prodcuto = producto
+        self.producto = producto
         self.cantidad = cantidad
         self.precio_unitario = precio_unitario
 

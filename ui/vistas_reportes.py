@@ -91,7 +91,7 @@ def mostrar_menu_reportes(ventana_padre, reportes_service):
         for r in rechazos: tabla_r.insert("", tk.END, values=(r[0], r[1], r[2], r[3]))
 
         tiempos = reportes_service.obtener_tiempo_transito()
-        for t in tiempos: tabla_t.insert("", tk.END, values=(t[0], t[1], t[2], f"{r[3]} hs"))
+        for t in tiempos: tabla_t.insert("", tk.END, values=(t[0], t[1], t[2], f"{t[3]} hs"))
 
     ttk.Button(tab_logistica, text="Actualizar Métricas Logísticas", command=cargar_logistica).pack(pady=10)
 

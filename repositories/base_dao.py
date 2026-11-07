@@ -1,6 +1,6 @@
 import sqlite3
 
-class BaseDao:
+class BaseDAO:
     def __init__(self, db_name="sistema_ventas.db"):
         self.db_name = db_name
 

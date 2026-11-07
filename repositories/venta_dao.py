@@ -12,7 +12,7 @@ class VentaDAO(BaseDAO):
         cursor = conexion.cursor()
 
         if venta.id is None:
-            sql = """INSERT INTO Ventas (fecha, estado, total, id_cajeero, id_local) VALUES (?, ?, ?, ?, ?) """
+            sql = """INSERT INTO Ventas (fecha, estado, total, id_cajero, id_local) VALUES (?, ?, ?, ?, ?) """
             cursor.execute(sql, (
                 venta.fecha.strftime("%Y-%m-%d %H:%M:%S"),
                 venta.estado,

@@ -23,7 +23,6 @@ class BultoDAO(BaseDAO):
                 bulto.destino.id if bulto.destino else None
             ))
             bulto.id = cursor.lastrowid
-
         else:
             sql = "UPDATE Bultos SET estado_actual=? WHERE id=?"
             cursor.execute(sql, (nombre_estado, bulto.id))
@@ -60,3 +59,24 @@ class BultoDAO(BaseDAO):
         conexion.commit()
         conexion.close()
         return cambio
+
+    def obtener_por_codigo(self, codigo: str):
+        """Busca un bulto en la base de datos usando su código alfanumérico."""
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT id, codigo FROM Bultos WHERE codigo = ?", (codigo,))
+        fila = cursor.fetchone()
+        conexion.close()
+
+        if fila:
+            # Devolvemos un objeto Bulto básico para que el Service extraiga el ID
+            return Bulto(id_bulto=fila[0], codigo=fila[1], fecha_creacion=None, origen=None, destino=None)
+        return None
+
+    def actualizar_estado_cabecera(self, id_bulto: int, nuevo_estado: str):
+        """Sobrescribe el estado del bulto en la tabla principal."""
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("UPDATE Bultos SET estado_actual = ? WHERE id = ?", (nuevo_estado, id_bulto))
+        conexion.commit()
+        conexion.close()

@@ -1,7 +1,7 @@
-from repositories.base_dao import BaseDao
+from repositories.base_dao import BaseDAO
 from domain.models.compras import OrdenCompra
 
-class ComprasDAO(BaseDao):
+class ComprasDAO(BaseDAO):
     def __init__(self):
         super().__init__()
 

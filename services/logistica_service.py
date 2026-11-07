@@ -82,3 +82,22 @@ class LogisticaService:
             observacion=observacion
         )
         self.dao.registrar_cambio_estado(bulto.id, cambio)
+
+    def actualizar_estado_bulto(self, codigo: str, estado_str: str, usuario: str, observacion: str):
+        """Busca un bulto por su código y le cambia el estado, registrando la auditoría."""
+        bulto = self.dao.obtener_por_codigo(codigo)
+        if not bulto:
+            raise ValueError(f"No se encontró ningún bulto con el código '{codigo}'")
+
+        # 1. Registramos el movimiento en la tabla CambioEstadoBulto (Auditoría)
+        cambio = CambioEstadoBulto(
+            id_cambio=None,
+            estado=estado_str,
+            fecha_hora=datetime.now(),
+            usuario=usuario,
+            observacion=observacion
+        )
+        self.dao.registrar_cambio_estado(bulto.id, cambio)
+
+        # 2. Actualizamos el estado actual en la tabla principal de Bultos
+        self.dao.actualizar_estado_cabecera(bulto.id, estado_str)

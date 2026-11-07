@@ -11,7 +11,7 @@ from ui.vistas_reportes import mostrar_menu_reportes
 def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, clientes_service, auditoria_service, reportes_service):
     ventana = tk.Tk()
     ventana.title("Sistema Central de Gestión")
-    ventana.geometry("400x300")
+    ventana.geometry("550x550")
 
     ttk.Style().theme_use('clam')
 

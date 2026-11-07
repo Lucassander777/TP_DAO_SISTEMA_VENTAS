@@ -64,3 +64,19 @@ class InventarioDao(BaseDAO):
         conexion.commit()
         conexion.close()
         return movimiento
+
+    def consultar_stock_disponible(self, id_producto: int, id_ubicacion: int) -> int:
+        """Devuelve la cantidad física actual de un producto en un local/ubicación específica."""
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        
+        # ACÁ ESTÁ EL CAMBIO: Ahora pedimos "cantidad_disponible"
+        sql = "SELECT cantidad_disponible FROM Stock WHERE id_producto = ? AND id_ubicacion = ?"
+        cursor.execute(sql, (id_producto, id_ubicacion))
+        fila = cursor.fetchone()
+        
+        conexion.close()
+        
+        if fila:
+            return fila[0]
+        return 0

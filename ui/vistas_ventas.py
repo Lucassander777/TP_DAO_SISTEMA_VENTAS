@@ -7,7 +7,6 @@ from domain.models.usuarios import Usuario
 from domain.models.ubicacion import Ubicacion
 from domain.models.catalogo import Producto
 from domain.models.pagos_strategy import PagoEfectivo, PagoTarjeta, PagoTransferencia
-
 from domain.models.promociones import DescuentoPorcentaje, DescuentoMontoFijo, PromoNxM
 
 def mostrar_menu_ventas(ventana_padre, ventana_service):
@@ -16,8 +15,8 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
     ventana_ventas.geometry("550x550")
 
     # Mocks para el TP
-    cajero_actual = Usuario(id_usuario=1, username="cajero_Pablo", rol="Cajero")
-    local_actual = Ubicacion(id_ubicacion=1, nombre="Local Centro", direccion="San Martín 456", tipo="Local")
+    cajero_actual = Usuario(id_usuario=1, username="cajero_Pablo", rol="Cajero", nombre="Pablo", apellido="Perez")
+    local_actual = Ubicacion(id_ubicacion=1, nombre="Local Centro", direccion="San Martín 456")
     carrito = []
 
     # AGREGAR PRODUCTOS
@@ -47,7 +46,7 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
             )
 
             carrito.append({'producto': prod_simulado, 'cantidad': cant, 'precio': precio})
-            lista_carrito.insert(tk.END, f"{cant}x Producto {prod_id} - ${precio} c/u")
+            lista_carrito.insert(tk.END, f"{cant}x Producto {prod_id} - ${precio:.2f} c/u")
 
             entry_id.delete(0, tk.END)
             entry_cant.delete(0, tk.END)
@@ -88,8 +87,9 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
         if not carrito:
             lbl_estado.config(text="El carrito está vacío", foreground="red")
             return
+        
         seleccion = opcion_pago.get()
-        if seleccion =="efectivo":
+        if seleccion == "efectivo":
             estrategia = PagoEfectivo()
         elif seleccion == "tarjeta":
             estrategia = PagoTarjeta(numero_tarjeta="4567", cuotas=1)
@@ -107,8 +107,6 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
         elif seleccion_promo == "Promo 3x2 (NxM)":
             promocion_aplicar = PromoNxM("3x2", "Llevá 3 pagás 2", hoy, hoy, True, 3, 2)
         
-        
-
         try:
             nueva_venta = ventana_service.procesar_venta_completa(
                 cajero=cajero_actual,
@@ -117,7 +115,7 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
                 medio_pago=estrategia,
                 promocion=promocion_aplicar
             )
-            lbl_estado.config(text=f"VENTA {nueva_venta.id} COMPLETADA (${nueva_venta.total})", foreground="green")
+            lbl_estado.config(text=f"VENTA {nueva_venta.id} COMPLETADA (${nueva_venta.total:.2f})", foreground="green")
             carrito.clear()
             lista_carrito.delete(0, tk.END)
             combo_promo.current(0)
