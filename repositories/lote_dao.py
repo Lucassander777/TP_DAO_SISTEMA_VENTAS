@@ -32,9 +32,9 @@ class LoteDAO(BaseDAO):
         cursor = conexion.cursor()
 
         cursor.execute("""
-            SELECT l.codigo, l.fecha_vencimiento, p.nombre
+            SELECT l.codigo, l.fecha_vencimiento, COALESCE(p.nombre, 'Producto sin registro DB')
             FROM Lotes l
-            JOIN Productos p ON l.id_producto = p.id
+            LEFT JOIN Productos p ON l.id_producto = p.id
             WHERE l.fecha_vencimiento < ? AND l.activo = 1
         """, (fecha_actual_str,))
 

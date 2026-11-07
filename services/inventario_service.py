@@ -32,7 +32,10 @@ class InventarioService:
             cantidad=cantidad,
             tipo=tipo,
             referencia_tipo=referencia_tipo,
-            referencia_id=referencia_id
+            referencia_id=referencia_id,
+            producto=None,
+            ubicacion=None,
+            usuario=None
         )
         self.dao.registrar_movimiento(movimiento, id_producto, id_ubicacion)
         return movimiento
@@ -62,7 +65,10 @@ class InventarioService:
             cantidad=-cantidad,
             tipo=tipo,
             referencia_tipo=referencia_tipo,
-            referencia_id=referencia_id
+            referencia_id=referencia_id,
+            producto=None,
+            ubicacion=None,
+            usuario=None
         )
         self.dao.registrar_movimiento(movimiento, id_producto, id_ubicacion)
         return movimiento

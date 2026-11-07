@@ -15,11 +15,11 @@ class Comprobante:
         self.fecha = fecha
 
 class Pago:
-    def __init__(self, id_pago: int, monto: Decimal, referencia: str):
+    def __init__(self, id_pago: int, monto: Decimal, referencia: str, medio_pago=None):
         self.id = id_pago
         self.monto = monto
-        self.referecnia = referencia
-        self.medio_pago = None # Se integrará en el Patrón Strategy
+        self.referencia = referencia  
+        self.medio_pago = medio_pago  
 
 class Venta:
     def __init__(self, id_venta: int, fecha: datetime, estado: str, total: Decimal, cajero, local):
