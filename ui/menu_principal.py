@@ -6,8 +6,9 @@ from ui.vistas_lote import mostrar_menu_lotes
 from ui.vistas_compras import mostrar_menu_compras
 from ui.vistas_clientes import mostrar_menu_clientes
 from ui.vistas_auditoria import mostrar_menu_auditoria
+from ui.vistas_reportes import mostrar_menu_reportes
 
-def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, clientes_service, auditoria_service):
+def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, clientes_service, auditoria_service, reportes_service):
     ventana = tk.Tk()
     ventana.title("Sistema Central de Gestión")
     ventana.geometry("400x300")
@@ -35,6 +36,9 @@ def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_se
     def abrir_auditoria():
         mostrar_menu_auditoria(ventana, auditoria_service)
 
+    def abrir_reporte():
+        mostrar_menu_reportes(ventana, reportes_service)
+
     btn_logistica = ttk.Button(ventana, text="Módulo de Logística", command=abrir_logistica)
     btn_logistica.pack(pady=10, fill="x", padx=50)
 
@@ -52,6 +56,9 @@ def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_se
 
     btn_auditoria = ttk.Button(ventana, text="Módulo de Inventarios Físicos", command=abrir_auditoria)
     btn_auditoria.pack(pady=10, fill="x", padx=50)
+
+    btn_reporte = ttk.Button(ventana, text="Módulo de Reportes Analíticos", command=abrir_reporte)
+    btn_reporte.pack(pady=10, fill="x", padx=50)
 
     btn_salir = ttk.Button(ventana, text="Salir del Sistema", command=ventana.destroy)
     btn_salir.pack(pady=10, fill="x", padx=50)

@@ -5,6 +5,7 @@ from repositories.lote_dao import LoteDAO
 from repositories.compras_dao import ComprasDAO
 from repositories.clientes_dao import ClienteDAO
 from repositories.auditoria_dao import AuditoriaDAO
+from repositories.reportes_dao import ReportesDAO
 
 from services.logistica_service import LogisticaService
 from services.ventas_service import VentaService
@@ -13,6 +14,7 @@ from services.lote_service import LoteService
 from services.compras_service import ComprasService
 from services.clientes_service import ClienteService
 from services.auditoria_service import AuditoriaService
+from services.reportes_service import ReportesService
 
 from ui.menu_principal import iniciar_interfaz
 
@@ -26,6 +28,7 @@ def main():
     compras_dao = ComprasDAO()
     cliente_dao = ClienteDAO()
     auditoria_dao = AuditoriaDAO()
+    reporte_dao = ReportesDAO()
     
 
     # 2. Instanciar los Servicios
@@ -36,10 +39,11 @@ def main():
     compras_service = ComprasService(compras_dao)
     cliente_service = ClienteService(cliente_dao)
     auditoria_service = AuditoriaService(auditoria_dao)
+    reporte_service = ReportesService(reporte_dao)
 
 
     # 3. Arrancar la interfaz gráfica
-    iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, cliente_service, auditoria_service)
+    iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, cliente_service, auditoria_service, reporte_service)
 
 if __name__ == "__main__":
     main()
