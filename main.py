@@ -44,7 +44,6 @@ def main():
     auditoria_service = AuditoriaService(auditoria_dao)
     reporte_service = ReportesService(reporte_dao)
 
-
     # 3. Arrancar la interfaz gráfica
     iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, cliente_service, auditoria_service, reporte_service)
 
