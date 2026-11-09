@@ -10,12 +10,15 @@ class ReportesDAO(BaseDAO):
         cursor = conexion.cursor()
 
         cursor.execute("""
-            SELECT u.nombre as local, p.tipo_medio_pago, COUNT(v.id) as cant_ventas, SUM(p.monto) as total
+            SELECT COALESCE(u.nombre, 'Local no registrado') as local, 
+                   COALESCE(p.tipo_medio_pago, 'No especificado') as tipo_medio_pago, 
+                   COUNT(v.id) as cant_ventas, 
+                   SUM(COALESCE(p.monto, v.total)) as total
             FROM Ventas v
-            JOIN Pagos p ON v.id = p.id_venta
-            JOIN Ubicaciones u ON v.id_local = u.id
+            LEFT JOIN Pagos p ON v.id = p.id_venta
+            LEFT JOIN Ubicaciones u ON v.id_local = u.id
             WHERE v.estado = 'Completada'
-            GROUP BY u.nombre, p.tipo_medio_pago
+            GROUP BY local, tipo_medio_pago
         """)
         resultados = cursor.fetchall()
         conexion.close()
@@ -27,12 +30,13 @@ class ReportesDAO(BaseDAO):
         cursor = conexion.cursor()
 
         cursor.execute("""
-            SELECT pr.nombre, SUM(iv.cantidad) as unidades,
-                SUM(iv.cantidad * iv.precio_unitario) as recaudacion,
-                SUM(iv.cantidad * (iv.precio_unitario - pr.costo)) as ganancia_estimada
+            SELECT COALESCE(pr.nombre, 'Producto sin registro') as nombre, 
+                   SUM(iv.cantidad) as unidades,
+                   SUM(iv.cantidad * iv.precio_unitario) as recaudacion,
+                   SUM(iv.cantidad * (iv.precio_unitario - COALESCE(pr.costo, 0))) as ganancia_estimada
             FROM ItemVenta iv
-            JOIN Productos pr ON iv.id_producto = pr.id
-            JOIN Ventas v ON iv.id_venta = v.id
+            LEFT JOIN Productos pr ON iv.id_producto = pr.id
+            LEFT JOIN Ventas v ON iv.id_venta = v.id
             GROUP BY pr.nombre
             ORDER BY unidades DESC
         """)
@@ -46,11 +50,14 @@ class ReportesDAO(BaseDAO):
         cursor = conexion.cursor()
 
         cursor.execute("""
-            SELECT pr.nombre, u.nombre as ubicacion, s.cantidad_fisica, pr.stock_minimo
+            SELECT COALESCE(pr.nombre, 'Producto sin registro') as nombre, 
+                   COALESCE(u.nombre, 'Ubicación sin registro') as ubicacion, 
+                   s.cantidad_fisica, 
+                   COALESCE(pr.stock_minimo, 0) as stock_minimo
             FROM Stock s
-            JOIN Productos pr ON s.id_producto = pr.id
-            JOIN Ubicaciones u ON s.id_ubicacion = u.id
-            WHERE s.cantidad_fisica <= pr.stock_minimo
+            LEFT JOIN Productos pr ON s.id_producto = pr.id
+            LEFT JOIN Ubicaciones u ON s.id_ubicacion = u.id
+            WHERE s.cantidad_fisica <= COALESCE(pr.stock_minimo, 0)
         """)
         resultados = cursor.fetchall()
         conexion.close()
@@ -97,12 +104,13 @@ class ReportesDAO(BaseDAO):
         cursor = conexion.cursor()
 
         cursor.execute("""
-            SELECT u.nombre as ubicacion, SUM(s.cantidad_fisica) as total_unidades,
-                    SUM(s.cantidad_fisica * p.costo) as valorizacion_total
+            SELECT COALESCE(u.nombre, 'Ubicación sin registro') as ubicacion, 
+                   SUM(s.cantidad_fisica) as total_unidades,
+                   SUM(s.cantidad_fisica * COALESCE(p.costo, 0)) as valorizacion_total
             FROM Stock s
-            JOIN Productos p ON s.id_producto = p.id
-            JOIN Ubicaciones u ON s.id_ubicacion = u.id
-            GROUP BY u.nombre
+            LEFT JOIN Productos p ON s.id_producto = p.id
+            LEFT JOIN Ubicaciones u ON s.id_ubicacion = u.id
+            GROUP BY ubicacion
         """)
         resultados = cursor.fetchall()
         conexion.close()

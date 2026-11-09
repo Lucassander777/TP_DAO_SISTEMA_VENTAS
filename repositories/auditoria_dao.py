@@ -10,9 +10,9 @@ class AuditoriaDAO(BaseDAO):
         cursor = conexion.cursor()
 
         cursor.execute("""
-            SELECT s.cantidad_fisica, p.nombre
+            SELECT s.cantidad_fisica, COALESCE(p.nombre, 'Producto sin registrar')
             FROM Stock s
-            JOIN Producto p ON s.id_producto = p.id
+            LEFT JOIN Productos p ON s.id_producto = p.id
             WHERE s.id_producto = ? AND s.id_ubicacion = ?
         """, (id_producto, id_ubicacion))
 

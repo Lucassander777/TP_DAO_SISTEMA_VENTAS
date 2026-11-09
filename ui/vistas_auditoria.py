@@ -41,6 +41,6 @@ def mostrar_menu_auditoria(ventana_padre, auditoria_service):
         except Exception as e:
             lbl_resultado.config(text=f"Error: {e}", foreground="red")
 
-        btn_conciliar = ttk.Button(frame_aud, text="Registrar y Ajustar Stock", command=ejecutar_conciliacion)
-        btn_conciliar.grid(row=3, column=0, columnspan=2, pady=15)
+    btn_conciliar = ttk.Button(frame_aud, text="Registrar y Ajustar Stock", command=ejecutar_conciliacion)
+    btn_conciliar.grid(row=3, column=0, columnspan=2, pady=15)
         
