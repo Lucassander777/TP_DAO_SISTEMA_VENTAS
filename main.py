@@ -36,7 +36,10 @@ def main():
     logistica_service = LogisticaService(bulto_dao)
     ventas_service = VentaService(venta_dao, inventario_service)
     lote_service = LoteService(lote_dao, inventario_service)
-    compras_service = ComprasService(compras_dao)
+    
+    # Aquí pasamos compras_dao e inventario_service:
+    compras_service = ComprasService(compras_dao, inventario_service)
+    
     cliente_service = ClienteService(cliente_dao)
     auditoria_service = AuditoriaService(auditoria_dao)
     reporte_service = ReportesService(reporte_dao)

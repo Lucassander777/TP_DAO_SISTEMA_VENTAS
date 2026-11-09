@@ -6,7 +6,7 @@ def mostrar_menu_compras(ventana_padre, compras_service):
     ventana_compras.title("Módulo de Compras - Sugeridas por Faltantes")
     ventana_compras.geometry("550x400")
 
-    frame_sugeridas = ttk.LabelFrame(ventana_compras, text="órdenes de Compra Sugeridas (Por debajo del stock mínimo)")
+    frame_sugeridas = ttk.LabelFrame(ventana_compras, text="Órdenes de Compra Sugeridas (Por debajo del stock mínimo)")
     frame_sugeridas.pack(pady=10, padx=10, fill="both", expand=True)
 
     columnas = ("producto", "stock_actual", "stock_minimo", "a_comprar")
@@ -36,7 +36,6 @@ def mostrar_menu_compras(ventana_padre, compras_service):
 
             if not faltantes:
                 lbl_estado.config(text="El stock está óptimo. No hay faltantes.", foreground="green")
-
             else:
                 for item in faltantes:
                     tabla_faltantes.insert("", tk.END, values=(
@@ -45,14 +44,13 @@ def mostrar_menu_compras(ventana_padre, compras_service):
                         item['stock_minimo'],
                         item['cantidad_sugerida']
                     ))
-            lbl_estado.config(text=f"Se detectaron {len(faltantes)} productos con faltantes.", foreground="orange")
+                # Corregido: dentro del else para que no sobreescriba el mensaje verde
+                lbl_estado.config(text=f"Se detectaron {len(faltantes)} productos con faltantes.", foreground="orange")
 
         except Exception as e:
             lbl_estado.config(text=f"Error al consultar faltantes: {e}", foreground="red")
 
     btn_generar = ttk.Button(frame_sugeridas, text="Calcular Faltantes y Sugerir Compra", command=calcular_sugeridas)
     btn_generar.pack(pady=10)
-
-
     
     
