@@ -67,3 +67,6 @@ class InventarioService:
         )
         self.dao.registrar_movimiento(movimiento, id_producto, id_ubicacion)
         return movimiento
+
+    def obtener_inventario_completo(self):
+        return self.inventario_dao.obtener_inventario_completo()

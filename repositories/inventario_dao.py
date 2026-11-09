@@ -115,3 +115,25 @@ class InventarioDao(BaseDAO):
                 'cantidad_sugerida': sugerido
             })
         return faltantes
+
+    def obtener_inventario_completo(self):
+        """Trae todo el stock cruzando con Productos y Ubicaciones para la grilla visual"""
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        
+        sql = """
+            SELECT 
+                COALESCE(p.nombre, 'Prod ' || s.id_producto) as producto,
+                COALESCE(u.nombre, 'Ubic ' || s.id_ubicacion) as ubicacion,
+                s.cantidad_fisica,
+                s.cantidad_disponible
+            FROM Stock s
+            LEFT JOIN Productos p ON s.id_producto = p.id
+            LEFT JOIN Ubicaciones u ON s.id_ubicacion = u.id
+        """
+        cursor.execute(sql)
+        filas = cursor.fetchall()
+        conexion.close()
+        
+        
+        return [dict(fila) for fila in filas]

@@ -23,7 +23,7 @@ class ProductoDao(BaseDAO):
         return producto
 
     def obtener_por_id(self, id_producto: int):
-        conexion = self.get.conexion()
+        conexion = self.get_conexion()
         cursor = conexion.cursor()
 
         cursor.execute("SELECT * FROM Productos WHERE id=?", (id_producto,))

@@ -24,17 +24,30 @@ class AuditoriaDAO(BaseDAO):
         conexion = self.get_conexion()
         cursor = conexion.cursor()
 
-        cursor.execute("""
-            UPDATE Stock
-            SET cantidad_fisica = ?, cantidad_disponible = ?
-            WHERE id_producto = ? AND id_ubicacion = ?
-        """, (nueva_cantidad, nueva_cantidad, id_producto, id_ubicacion))
+        # 1. Verificamos si ya existe un registro de stock para este producto y ubicación
+        cursor.execute("SELECT 1 FROM Stock WHERE id_producto = ? AND id_ubicacion = ?", (id_producto, id_ubicacion))
+        existe = cursor.fetchone()
 
+        if existe:
+            # Si existe, actualizamos
+            cursor.execute("""
+                UPDATE Stock
+                SET cantidad_fisica = ?, cantidad_disponible = ?
+                WHERE id_producto = ? AND id_ubicacion = ?
+            """, (nueva_cantidad, nueva_cantidad, id_producto, id_ubicacion))
+        else:
+            # Si NO existe, lo insertamos para evitar errores de integridad o claves foráneas
+            cursor.execute("""
+                INSERT INTO Stock (id_producto, id_ubicacion, cantidad_fisica, cantidad_disponible)
+                VALUES (?, ?, ?, ?)
+            """, (id_producto, id_ubicacion, nueva_cantidad, nueva_cantidad))
+
+        # 2. Registramos el movimiento de auditoría con la fecha formateada en texto
         cursor.execute("""
             INSERT INTO MovimientoStock (fecha, cantidad, tipo, referencia_tipo, referencia_id, id_producto, id_ubicacion)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
-            datetime.now(),
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             diferencia,
             'AJUSTE_AUDITORIA',
             'Conciliacion Fisica',
