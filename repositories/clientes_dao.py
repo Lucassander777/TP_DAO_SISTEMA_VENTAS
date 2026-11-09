@@ -6,7 +6,7 @@ class ClienteDAO(BaseDAO):
 
     def guardar(self, nombre, dni, limite_credito):
         conexion = self.get_conexion()
-        cursor = conexion.curso()
+        cursor = conexion.cursor()  # Corregido: antes decía curso()
 
         cursor.execute("""
             INSERT INTO Clientes (nombre, dni, limite_credito)
@@ -17,11 +17,20 @@ class ClienteDAO(BaseDAO):
         conexion.close()
         return cliente_id
 
-    def obtener_por_id(self, dni):
+    def obtener_por_dni(self, dni):
         conexion = self.get_conexion()
         cursor = conexion.cursor()
 
         cursor.execute("SELECT id, nombre, dni, saldo, limite_credito FROM Clientes WHERE dni = ?", (dni,))
+        row = cursor.fetchone()
+        conexion.close()
+        return row
+
+    def obtener_por_id(self, cliente_id):
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+
+        cursor.execute("SELECT id, nombre, dni, saldo, limite_credito FROM Clientes WHERE id = ?", (cliente_id,))
         row = cursor.fetchone()
         conexion.close()
         return row
