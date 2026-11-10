@@ -6,12 +6,9 @@ class ComprasDAO(BaseDAO):
         super().__init__()
 
     def obtener_faltantes_stock(self):
-        """Cruza la tabla de inventario con los productos para detectar cuáles están por debajo del stock mínimo."""
-
         conexion = self.get_conexion()
         cursor = conexion.cursor()
 
-        # Usamos LEFT JOIN para sumar el stock físico real desde la tabla Stock
         cursor.execute("""
             SELECT 
                 p.id, 
@@ -40,12 +37,12 @@ class ComprasDAO(BaseDAO):
         return lista_faltantes
 
     def guardar_orden(self, orden: OrdenCompra) -> OrdenCompra:
-        """Guarda la cabecera de la Orden de Compra sugerida en la base de datos."""
         conexion = self.get_conexion()
         cursor = conexion.cursor()
 
+        # Guardar Cabecera - Apuntando a OrdenCompra (singular)
         cursor.execute("""
-            INSERT INTO OrdenesCompra (fecha, estado, id_proveedor, total)
+            INSERT INTO OrdenCompra (fecha, estado, id_proveedor, total)
             VALUES (?, ?, ?, ?)
         """, (
             orden.fecha,
@@ -55,6 +52,28 @@ class ComprasDAO(BaseDAO):
         ))
         orden.id = cursor.lastrowid
 
+        # Guardar Ítems (Detalle)
+        for item in orden.items:
+            cursor.execute("""
+                INSERT INTO DetalleOrdenCompra (id_orden, id_producto, cantidad, precio_unitario)
+                VALUES (?, ?, ?, ?)
+            """, (
+                orden.id,
+                item.producto.id,
+                item.cantidad,
+                item.precio
+            ))
+
         conexion.commit()
         conexion.close()
         return orden
+
+    def actualizar_estado_orden(self, id_orden: int, nuevo_estado: str):
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        
+        # Apuntando a OrdenCompra (singular)
+        cursor.execute("UPDATE OrdenCompra SET estado = ? WHERE id = ?", (nuevo_estado, id_orden))
+        
+        conexion.commit()
+        conexion.close()
