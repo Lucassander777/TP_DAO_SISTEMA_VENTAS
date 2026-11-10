@@ -11,10 +11,18 @@ class ComprasDAO(BaseDAO):
         conexion = self.get_conexion()
         cursor = conexion.cursor()
 
+        # Usamos LEFT JOIN para sumar el stock físico real desde la tabla Stock
         cursor.execute("""
-            SELECT p.id, p.nombre, p.stock_actual, p.stock_minimo
+            SELECT 
+                p.id, 
+                p.nombre, 
+                COALESCE(SUM(s.cantidad_disponible), 0) as stock_real, 
+                p.stock_minimo
             FROM Productos p
-            WHERE p.stock_actual < p.stock_minimo AND p.activo = 1
+            LEFT JOIN Stock s ON p.id = s.id_producto
+            WHERE p.activo = 1
+            GROUP BY p.id, p.nombre, p.stock_minimo
+            HAVING stock_real < p.stock_minimo
         """)
 
         faltantes = cursor.fetchall()

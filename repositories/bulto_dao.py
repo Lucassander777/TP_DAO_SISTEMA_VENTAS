@@ -1,5 +1,7 @@
 from repositories.base_dao import BaseDAO
 from domain.models.logistica import Bulto, ItemBulto, CambioEstadoBulto
+from domain.models.ubicacion import Local
+from domain.models.catalogo import Producto
 from datetime import datetime
 
 class BultoDAO(BaseDAO):
@@ -64,13 +66,28 @@ class BultoDAO(BaseDAO):
         """Busca un bulto en la base de datos usando su código alfanumérico."""
         conexion = self.get_conexion()
         cursor = conexion.cursor()
-        cursor.execute("SELECT id, codigo FROM Bultos WHERE codigo = ?", (codigo,))
+        
+        cursor.execute("SELECT id, codigo, id_origen, id_destino FROM Bultos WHERE codigo = ?", (codigo,))
         fila = cursor.fetchone()
         conexion.close()
 
         if fila:
-            # Devolvemos un objeto Bulto básico para que el Service extraiga el ID
-            return Bulto(id_bulto=fila[0], codigo=fila[1], fecha_creacion=None, origen=None, destino=None)
+            id_bulto = fila['id'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[0]
+            codigo_b = fila['codigo'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[1]
+            id_origen = fila['id_origen'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[2]
+            id_destino = fila['id_destino'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[3]
+
+            # Instanciamos tu clase concreta real (Local hereda de Ubicacion)
+            origen_obj = Local(id_ubicacion=id_origen, nombre="", direccion="") if id_origen else None
+            destino_obj = Local(id_ubicacion=id_destino, nombre="", direccion="") if id_destino else None
+
+            return Bulto(
+                id_bulto=id_bulto, 
+                codigo=codigo_b, 
+                fecha_creacion=None, 
+                origen=origen_obj, 
+                destino=destino_obj
+            )
         return None
 
     def actualizar_estado_cabecera(self, id_bulto: int, nuevo_estado: str):
@@ -80,3 +97,34 @@ class BultoDAO(BaseDAO):
         cursor.execute("UPDATE Bultos SET estado_actual = ? WHERE id = ?", (nuevo_estado, id_bulto))
         conexion.commit()
         conexion.close()
+
+    def obtener_items_por_bulto(self, id_bulto: int) -> list:
+        """Busca los productos y cantidades guardados dentro de un bulto específico."""
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        
+        sql = "SELECT id_producto, cantidad FROM ItemBulto WHERE id_bulto = ?"
+        cursor.execute(sql, (id_bulto,))
+        filas = cursor.fetchall()
+        conexion.close()
+        
+        items = []
+        for fila in filas:
+            id_prod = fila['id_producto'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[0]
+            cantidad = fila['cantidad'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[1]
+            
+            # Le agregamos categoria=None y proveedor=None para satisfacer a tu clase real
+            prod_obj = Producto(
+                id_producto=id_prod, 
+                sku="N/A", 
+                nombre="Prod DB", 
+                precio_venta=0.0, 
+                costo=0.0,
+                categoria=None,
+                proveedor=None
+            )
+            
+            item = ItemBulto(producto=prod_obj, cantidad=cantidad)
+            items.append(item)
+            
+        return items

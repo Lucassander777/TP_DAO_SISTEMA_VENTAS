@@ -37,7 +37,7 @@ def main():
     
     # 2. Instanciar los Servicios
     inventario_service = InventarioService(inventario_dao)
-    logistica_service = LogisticaService(bulto_dao)
+    logistica_service = LogisticaService(bulto_dao, inventario_service)
     ventas_service = VentaService(venta_dao, inventario_service)
     lote_service = LoteService(lote_dao, inventario_service)
     producto_service = ProductoService(producto_dao)

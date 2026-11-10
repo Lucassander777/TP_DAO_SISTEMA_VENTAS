@@ -5,7 +5,7 @@ class VistaInventarioGeneral(tk.Toplevel):
     def __init__(self, parent, inventario_service):
         super().__init__(parent)
         self.title("Consulta de Inventario General")
-        self.geometry("600x400")
+        self.geometry("650x450")
         
         self.inventario_service = inventario_service
         self.crear_interfaz()
