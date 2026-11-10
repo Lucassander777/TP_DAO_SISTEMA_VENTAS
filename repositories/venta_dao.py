@@ -82,3 +82,17 @@ class VentaDAO(BaseDAO):
         conexion.commit()
         conexion.close()
         return comprobante
+
+    def registrar_devolucion(self, id_venta: int, id_producto: int, cantidad: int):
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        
+        # Acá depende de cómo llamaste a tu tabla, pero el concepto es registrar el negativo o la nota de crédito.
+        # Si tenés una tabla Devoluciones:
+        cursor.execute("""
+            INSERT INTO Devoluciones (id_venta, id_producto, cantidad_devuelta, fecha)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        """, (id_venta, id_producto, cantidad))
+        
+        conexion.commit()
+        conexion.close()

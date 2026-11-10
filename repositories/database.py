@@ -6,7 +6,7 @@ class Database:
 
     def get_conexion(self):
         conexion = sqlite3.connect(self.db_name)
-        conexion.row_factory = sqlite3
+        conexion.row_factory = sqlite3.Row # Mejor usar sqlite3.Row para acceder por nombre de columna
 
         conexion.execute("PRAGMA foreign_keys = ON")
         return conexion
@@ -157,7 +157,7 @@ class Database:
         """)
 
         # ----------
-        # VENTAS (Cabecera, detalle y pagos)
+        # VENTAS (Cabecera, detalle, pagos y devoluciones)
         # ----------
 
         cursor.execute("""
@@ -207,11 +207,26 @@ class Database:
             )
         """)
 
+        # NUEVA TABLA: Devoluciones
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS Devoluciones (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_venta INTEGER NOT NULL,
+                id_producto INTEGER NOT NULL,
+                cantidad_devuelta INTEGER NOT NULL,
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (id_venta) REFERENCES Ventas(id),
+                FOREIGN KEY (id_producto) REFERENCES Productos(id)
+            )
+        """)
+
         # ----------
         # COMPRAS
         # ----------
+        
+        # CORRECCIÓN: Renombrado de OrdenesCompra a OrdenCompra para evitar el error de Foreign Key
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS OrdenesCompra(
+            CREATE TABLE IF NOT EXISTS OrdenCompra(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 fecha TEXT NOT NULL,
                 estado TEXT NOT NULL,

@@ -78,3 +78,20 @@ class VentaService:
         self.dao.guardar_comprobante(nueva_venta.id, comprobante)
 
         return nueva_venta
+
+    def procesar_devolucion(self, id_venta: int, id_producto: int, cantidad: int, id_local: int):
+        if cantidad <= 0:
+            raise ValueError("La cantidad a devolver debe ser mayor a cero.")
+        
+        # 1. Registrar la devolución en la base de datos
+        self.dao.registrar_devolucion(id_venta, id_producto, cantidad)
+        
+        # 2. Reingresar el stock al local usando tu método registrar_entrada
+        self.inventario_service.registrar_entrada(
+            id_producto=id_producto,
+            id_ubicacion=id_local,
+            cantidad=cantidad,
+            tipo=TipoMovimiento.RECEPCION,  # Usamos el Enum que ya tenías importado arriba
+            referencia_tipo="Devolucion de Venta",
+            referencia_id=id_venta
+        )

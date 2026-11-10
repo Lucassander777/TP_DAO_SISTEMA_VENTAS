@@ -12,14 +12,14 @@ from domain.models.promociones import DescuentoPorcentaje, DescuentoMontoFijo, P
 def mostrar_menu_ventas(ventana_padre, ventana_service):
     ventana_ventas = tk.Toplevel(ventana_padre)
     ventana_ventas.title("Módulo de Ventas - Punto de Venta")
-    ventana_ventas.geometry("550x550")
+    ventana_ventas.geometry("580x680")
 
     # Mocks para el TP
     cajero_actual = Usuario(id_usuario=1, username="cajero_Pablo", rol="Cajero", nombre="Pablo", apellido="Perez")
     local_actual = Ubicacion(id_ubicacion=1, nombre="Local Centro", direccion="San Martín 456")
     carrito = []
 
-    # AGREGAR PRODUCTOS
+    # --- AGREGAR PRODUCTOS ---
     frame_prod = ttk.LabelFrame(ventana_ventas, text="Agregar Producto al Carrito")
     frame_prod.pack(pady=10, padx=10, fill="x")
 
@@ -42,10 +42,12 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
             precio = Decimal(entry_precio.get())
 
             prod_simulado = Producto(
-                id_producto=prod_id, sku=f"SKU-{prod_id}", nombre="Producto de prueba", precio_venta=precio, costo=Decimal("0.0"), categoria=None, proveedor=None
+                id_producto=prod_id, sku=f"SKU-{prod_id}", nombre="Producto de prueba", 
+                precio_venta=precio, costo=Decimal("0.0"), categoria=None, proveedor=None
             )
 
             carrito.append({'producto': prod_simulado, 'cantidad': cant, 'precio': precio})
+            # Sintaxis corregida
             lista_carrito.insert(tk.END, f"{cant}x Producto {prod_id} - ${precio:.2f} c/u")
 
             entry_id.delete(0, tk.END)
@@ -58,27 +60,27 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
     btn_agregar = ttk.Button(frame_prod, text="Agregar", command=agregar_al_carrito)
     btn_agregar.grid(row=0, column=6, padx=10)
 
-    # CARRITO VISUAL
-    lista_carrito = tk.Listbox(ventana_ventas, height=8)
+    # --- CARRITO VISUAL ---
+    lista_carrito = tk.Listbox(ventana_ventas, height=6)
     lista_carrito.pack(pady=5, padx=10, fill="both")
 
-    # PROMOCIONES Y DESCUENTOS
+    # --- PROMOCIONES Y DESCUENTOS ---
     frame_promo = ttk.LabelFrame(ventana_ventas, text="Aplicar Promoción")
     frame_promo.pack(pady=5, padx=10, fill="x")
 
     opciones_promo = ["Sin Promoción", "10% de Descuento", "Descuento Fijo $2000", "Promo 3x2 (NxM)"]
     combo_promo = ttk.Combobox(frame_promo, values=opciones_promo, state="readonly")
     combo_promo.current(0)
-    combo_promo.pack(pady=10, padx=20, fill="x")
+    combo_promo.pack(pady=5, padx=20, fill="x")
 
-    # ESTRATEGIA DE PAGO
+    # --- ESTRATEGIA DE PAGO ---
     frame_pago = ttk.LabelFrame(ventana_ventas, text="Medio de Pago")
-    frame_pago.pack(pady=10, padx=10, fill="x")
+    frame_pago.pack(pady=5, padx=10, fill="x")
 
     opcion_pago = tk.StringVar(value="efectivo")
-    ttk.Radiobutton(frame_pago, text="Efectivo", variable=opcion_pago, value="efectivo").pack(side="left", padx=20, pady=10)
-    ttk.Radiobutton(frame_pago, text="Tarjeta", variable=opcion_pago, value="tarjeta").pack(side="left", padx=20, pady=10)
-    ttk.Radiobutton(frame_pago, text="Transferencia", variable=opcion_pago, value="transferencia").pack(side="left", padx=20, pady=10)
+    ttk.Radiobutton(frame_pago, text="Efectivo", variable=opcion_pago, value="efectivo").pack(side="left", padx=20, pady=5)
+    ttk.Radiobutton(frame_pago, text="Tarjeta", variable=opcion_pago, value="tarjeta").pack(side="left", padx=20, pady=5)
+    ttk.Radiobutton(frame_pago, text="Transferencia", variable=opcion_pago, value="transferencia").pack(side="left", padx=20, pady=5)
 
     lbl_estado = ttk.Label(ventana_ventas, text="", font=("Arial", 10, "bold"))
     lbl_estado.pack(pady=5)
@@ -123,7 +125,44 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
             lbl_estado.config(text=f"Error en BD: {e}", foreground="red")
 
     btn_cobrar = ttk.Button(ventana_ventas, text="PROCESAR VENTA", command=cobrar_venta)
-    btn_cobrar.pack(pady=10)
+    btn_cobrar.pack(pady=5)
+
+    # --- DEVOLUCIONES ---
+    frame_dev = ttk.LabelFrame(ventana_ventas, text="Gestión de Devoluciones (Impacta Stock y Caja)")
+    frame_dev.pack(pady=10, padx=10, fill="x")
+
+    ttk.Label(frame_dev, text="ID Venta:").grid(row=0, column=0, padx=5, pady=5)
+    entry_dev_venta = ttk.Entry(frame_dev, width=8)
+    entry_dev_venta.grid(row=0, column=1, padx=5, pady=5)
+
+    ttk.Label(frame_dev, text="ID Prod:").grid(row=0, column=2, padx=5, pady=5)
+    entry_dev_prod = ttk.Entry(frame_dev, width=8)
+    entry_dev_prod.grid(row=0, column=3, padx=5, pady=5)
+
+    ttk.Label(frame_dev, text="Cant:").grid(row=0, column=4, padx=5, pady=5)
+    entry_dev_cant = ttk.Entry(frame_dev, width=8)
+    entry_dev_cant.grid(row=0, column=5, padx=5, pady=5)
+
+    def registrar_devolucion():
+        try:
+            id_venta = int(entry_dev_venta.get())
+            id_prod = int(entry_dev_prod.get())
+            cant = int(entry_dev_cant.get())
+            
+            # Impacta en DB y devuelve el stock
+            ventana_service.procesar_devolucion(id_venta, id_prod, cant, local_actual.id)
+            
+            lbl_estado.config(text=f"DEVOLUCIÓN OK: Se devolvieron {cant} unidades del Prod {id_prod}", foreground="blue")
+            entry_dev_venta.delete(0, tk.END)
+            entry_dev_prod.delete(0, tk.END)
+            entry_dev_cant.delete(0, tk.END)
+        except ValueError:
+            lbl_estado.config(text="Ingrese números válidos para devolver", foreground="red")
+        except Exception as e:
+            lbl_estado.config(text=f"Error en devolución: {e}", foreground="red")
+
+    btn_devolver = ttk.Button(frame_dev, text="PROCESAR DEVOLUCIÓN", command=registrar_devolucion)
+    btn_devolver.grid(row=1, column=0, columnspan=6, pady=10)
 
 
 

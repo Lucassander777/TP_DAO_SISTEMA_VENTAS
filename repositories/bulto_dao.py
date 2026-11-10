@@ -128,3 +128,43 @@ class BultoDAO(BaseDAO):
             items.append(item)
             
         return items
+
+    def obtener_por_id(self, id_bulto: int):
+        """Busca un bulto en la base de datos usando su ID interno y recupera su estado real."""
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        
+        # AGREGAMOS estado_actual a la consulta
+        cursor.execute("SELECT id, codigo, estado_actual, id_origen, id_destino FROM Bultos WHERE id = ?", (id_bulto,))
+        fila = cursor.fetchone()
+        conexion.close()
+
+        if fila:
+            codigo_b = fila['codigo'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[1]
+            estado_str = fila['estado_actual'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[2]
+            id_origen = fila['id_origen'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[3]
+            id_destino = fila['id_destino'] if isinstance(fila, dict) or hasattr(fila, 'keys') else fila[4]
+
+            origen_obj = Local(id_ubicacion=id_origen, nombre="", direccion="") if id_origen else None
+            destino_obj = Local(id_ubicacion=id_destino, nombre="", direccion="") if id_destino else None
+
+            bulto = Bulto(
+                id_bulto=id_bulto, 
+                codigo=codigo_b, 
+                fecha_creacion=None, 
+                origen=origen_obj, 
+                destino=destino_obj
+            )
+            
+            # MAGIA DEL PATRÓN STATE: Instanciamos la clase correcta según el texto guardado en BD
+            import domain.models.logistica_states as states
+            try:
+                clase_estado = getattr(states, estado_str)
+                bulto.estado_actual = clase_estado()
+            except Exception:
+                # Fallback por seguridad
+                bulto.estado_actual = states.Preparado()
+            
+            return bulto
+            
+        return None

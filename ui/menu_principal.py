@@ -11,10 +11,15 @@ from ui.vistas_producto import VistaAltaProducto
 from ui.vistas_ubicacion import VistaAltaUbicacion
 from ui.vistas_inventario import VistaInventarioGeneral
 
-def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, clientes_service, auditoria_service, reportes_service, producto_service, ubicacion_service, inventario_service):
+# 1. Importar las vistas nuevas
+from ui.vistas_categorias import VistaABMCategorias
+from ui.vistas_proveedores import VistaABMProveedores
+
+# 2. Agregar los servicios nuevos a los parámetros
+def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_service, clientes_service, auditoria_service, reportes_service, producto_service, ubicacion_service, inventario_service, categorias_service, proveedores_service):
     ventana = tk.Tk()
     ventana.title("Sistema Central de Gestión")
-    ventana.geometry("550x650")
+    ventana.geometry("550x730") # Ampliado un poco para que entren los botones nuevos
 
     ttk.Style().theme_use('clam')
 
@@ -43,8 +48,9 @@ def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_se
     def abrir_reporte():
         mostrar_menu_reportes(ventana, reportes_service)
 
+    # Actualizado para pasar los 3 servicios
     def abrir_producto():
-        VistaAltaProducto(ventana, producto_service)
+        VistaAltaProducto(ventana, producto_service, categorias_service, proveedores_service)
 
     def abrir_ubicacion():
         VistaAltaUbicacion(ventana, ubicacion_service)
@@ -52,9 +58,23 @@ def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_se
     def abrir_inventario():
         VistaInventarioGeneral(ventana, inventario_service)
 
+    # Nuevas funciones para abrir las ventanas de Categorías y Proveedores
+    def abrir_categorias():
+        VistaABMCategorias(ventana, categorias_service)
+
+    def abrir_proveedores():
+        VistaABMProveedores(ventana, proveedores_service)
+
     # --- Botones del menú ---
     btn_producto = ttk.Button(ventana, text="1. Gestión de Productos (Catálogo)", command=abrir_producto)
     btn_producto.pack(pady=5, fill="x", padx=50)
+
+    # Botones nuevos de ABM
+    btn_categorias = ttk.Button(ventana, text="1.1 Administrar Categorías", command=abrir_categorias)
+    btn_categorias.pack(pady=5, fill="x", padx=50)
+
+    btn_proveedores = ttk.Button(ventana, text="1.2 Administrar Proveedores", command=abrir_proveedores)
+    btn_proveedores.pack(pady=5, fill="x", padx=50)
 
     btn_ubicacion = ttk.Button(ventana, text="2. Gestión de Ubicaciones (Locales)", command=abrir_ubicacion)
     btn_ubicacion.pack(pady=5, fill="x", padx=50)

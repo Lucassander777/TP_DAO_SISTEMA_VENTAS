@@ -20,10 +20,14 @@ from services.reportes_service import ReportesService
 from services.producto_service import ProductoService
 from services.ubicacion_service import UbicacionService
 
+# 1. Importar los servicios nuevos
+from services.categorias_service import CategoriasService
+from services.proveedores_service import ProveedoresService
+
 from ui.menu_principal import iniciar_interfaz
 
 def main():
-     # 1. Instanciar los DAOs
+    # 2. Instanciar los DAOs
     bulto_dao = BultoDAO()
     venta_dao = VentaDAO()
     inventario_dao = InventarioDao()
@@ -35,7 +39,7 @@ def main():
     producto_dao = ProductoDao()
     ubicacion_dao = UbicacionDAO()
     
-    # 2. Instanciar los Servicios
+    # 3. Instanciar los Servicios
     inventario_service = InventarioService(inventario_dao)
     logistica_service = LogisticaService(bulto_dao, inventario_service)
     ventas_service = VentaService(venta_dao, inventario_service)
@@ -47,7 +51,12 @@ def main():
     cliente_service = ClienteService(cliente_dao)
     auditoria_service = AuditoriaService(auditoria_dao)
     reporte_service = ReportesService(reporte_dao)
-# 3. Arrancar la interfaz gráfica
+    
+    # Instanciar los servicios de Categorías y Proveedores
+    categorias_service = CategoriasService()
+    proveedores_service = ProveedoresService()
+
+    # 4. Arrancar la interfaz gráfica pasando todos los servicios
     iniciar_interfaz(
         logistica_service, 
         ventas_service, 
@@ -58,7 +67,9 @@ def main():
         reporte_service, 
         producto_service,
         ubicacion_service,
-        inventario_service
+        inventario_service,
+        categorias_service,  # <--- Agregado
+        proveedores_service  # <--- Agregado
     )
 
 if __name__ == "__main__":
