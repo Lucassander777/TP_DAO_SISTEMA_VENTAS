@@ -53,7 +53,7 @@ class ComprasService:
             )
 
             item_recepcion = ItemRecepcion(
-                id_orden=data['item_orden'],
+                item_orden=data['item_orden'],
                 cantidad=data['cantidad'],
                 costo_unitario=data['costo'],
                 lote=nuevo_lote

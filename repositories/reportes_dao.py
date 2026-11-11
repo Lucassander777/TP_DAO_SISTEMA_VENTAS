@@ -91,7 +91,7 @@ class ReportesDAO(BaseDAO):
                 c2.fecha_hora as fecha_recepcion,
                 ROUND((julianday(c2.fecha_hora) - julianday(c1.fecha_hora)) * 24, 2) as horas_transito
             FROM Bultos b
-            JOIN CambioEstadoBulto c1 ON b.id = c1.id_bulto AND c1.estado = 'EnTránsito'
+            JOIN CambioEstadoBulto c1 ON b.id = c1.id_bulto AND c1.estado IN ('EnTransito', 'EnTránsito')
             JOIN CambioEstadoBulto c2 ON b.id = c2.id_bulto AND c2.estado = 'Verificado'
         """)
         resultados = cursor.fetchall()
