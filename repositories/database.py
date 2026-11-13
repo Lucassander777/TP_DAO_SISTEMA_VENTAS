@@ -31,7 +31,7 @@ class Database:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS Categorias(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL
+                nombre TEXT UNIQUE NOT NULL 
                 )
         """)
 

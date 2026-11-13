@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import date
 from decimal import Decimal
 
@@ -9,10 +9,17 @@ from domain.models.catalogo import Producto
 from domain.models.pagos_strategy import PagoEfectivo, PagoTarjeta, PagoTransferencia
 from domain.models.promociones import DescuentoPorcentaje, DescuentoMontoFijo, PromoNxM
 
-def mostrar_menu_ventas(ventana_padre, ventana_service):
+def mostrar_menu_ventas(ventana_padre, ventana_service, producto_service):
     ventana_ventas = tk.Toplevel(ventana_padre)
     ventana_ventas.title("Módulo de Ventas - Punto de Venta")
     ventana_ventas.geometry("580x680")
+
+    try:
+        productos = producto_service.obtener_todos()
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudieron cargar los productos: {e}", parent=ventana_ventas)
+        ventana_ventas.destroy()
+        return
 
     # Mocks para el TP
     cajero_actual = Usuario(id_usuario=1, username="cajero_Pablo", rol="Cajero", nombre="Pablo", apellido="Perez")
@@ -23,13 +30,25 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
     frame_prod = ttk.LabelFrame(ventana_ventas, text="Agregar Producto al Carrito")
     frame_prod.pack(pady=10, padx=10, fill="x")
 
-    ttk.Label(frame_prod, text="ID Prod:").grid(row=0, column=0, padx=5, pady=5)
-    entry_id = ttk.Entry(frame_prod, width=8)
-    entry_id.grid(row=0, column=1, padx=5, pady=5)
+    ttk.Label(frame_prod, text="Producto:").grid(row=0, column=0, padx=5, pady=5)
+    combo_producto = ttk.Combobox(
+        frame_prod,
+        values=[producto["nombre"] for producto in productos],
+        state="readonly",
+        width=18
+    )
+    combo_producto.grid(row=0, column=1, padx=5, pady=5)
 
     ttk.Label(frame_prod, text="Cant:").grid(row=0, column=2, padx=5, pady=5)
     entry_cant = ttk.Entry(frame_prod, width=8)
     entry_cant.grid(row=0, column=3, padx=5, pady=5)
+    entry_cant.insert(0, "1")
+
+    def seleccionar_producto(_event):
+        entry_cant.delete(0, tk.END)
+        entry_cant.insert(0, "1")
+
+    combo_producto.bind("<<ComboboxSelected>>", seleccionar_producto)
 
     ttk.Label(frame_prod, text="Precio: $").grid(row=0, column=4, padx=5, pady=5)
     entry_precio = ttk.Entry(frame_prod, width=10)
@@ -37,21 +56,27 @@ def mostrar_menu_ventas(ventana_padre, ventana_service):
 
     def agregar_al_carrito():
         try:
-            prod_id = int(entry_id.get())
+            idx_producto = combo_producto.current()
+            if idx_producto == -1:
+                lbl_estado.config(text="Seleccione un producto", foreground="red")
+                return
+
+            producto = productos[idx_producto]
+            prod_id = producto["id"]
             cant = int(entry_cant.get())
             precio = Decimal(entry_precio.get())
 
             prod_simulado = Producto(
-                id_producto=prod_id, sku=f"SKU-{prod_id}", nombre="Producto de prueba", 
+                id_producto=prod_id, sku=f"SKU-{prod_id}", nombre=producto["nombre"],
                 precio_venta=precio, costo=Decimal("0.0"), categoria=None, proveedor=None
             )
 
             carrito.append({'producto': prod_simulado, 'cantidad': cant, 'precio': precio})
-            # Sintaxis corregida
-            lista_carrito.insert(tk.END, f"{cant}x Producto {prod_id} - ${precio:.2f} c/u")
+            lista_carrito.insert(tk.END, f"{cant}x {producto['nombre']} - ${precio:.2f} c/u")
 
-            entry_id.delete(0, tk.END)
+            combo_producto.set("")
             entry_cant.delete(0, tk.END)
+            entry_cant.insert(0, "1")
             entry_precio.delete(0, tk.END)
             lbl_estado.config(text="")
         except ValueError:

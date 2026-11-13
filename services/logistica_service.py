@@ -13,6 +13,9 @@ class LogisticaService:
 
     def armar_bulto(self, codigo: str, origen, destino, items_dict: dict, usuario: str) -> Bulto:
         """Crea un nuevo bulto desde cero. items_dict es un diccionario de {producto: cantidad}."""
+        if origen and destino and origen.id == destino.id:
+            raise ValueError("El origen y el destino del bulto deben ser sucursales diferentes.")
+
         nuevo_bulto = Bulto(
             id_bulto=None,
             codigo=codigo,

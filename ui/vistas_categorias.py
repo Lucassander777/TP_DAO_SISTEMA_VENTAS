@@ -24,10 +24,8 @@ class VistaABMCategorias(tk.Toplevel):
         marco_lista = ttk.LabelFrame(self, text="Categorías Existentes")
         marco_lista.pack(padx=15, pady=5, fill="both", expand=True)
 
-        self.tree = ttk.Treeview(marco_lista, columns=("ID", "Nombre"), show="headings", height=8)
-        self.tree.heading("ID", text="ID")
+        self.tree = ttk.Treeview(marco_lista, columns=("Nombre",), show="headings", height=8)
         self.tree.heading("Nombre", text="Nombre")
-        self.tree.column("ID", width=50, anchor="center")
         self.tree.column("Nombre", width=250)
         self.tree.pack(padx=10, pady=10, fill="both", expand=True)
         
@@ -40,7 +38,7 @@ class VistaABMCategorias(tk.Toplevel):
         
         categorias = self.categorias_service.obtener_todas()
         for cat in categorias:
-            self.tree.insert("", tk.END, values=(cat["id"], cat["nombre"]))
+            self.tree.insert("", tk.END, iid=str(cat["id"]), values=(cat["nombre"],))
 
     def guardar(self):
         nombre = self.entry_nombre.get().strip()
@@ -58,7 +56,7 @@ class VistaABMCategorias(tk.Toplevel):
             messagebox.showwarning("Atención", "Seleccione una categoría para eliminar.")
             return
         
-        id_cat = self.tree.item(seleccion[0])['values'][0]
+        id_cat = int(seleccion[0])
         if messagebox.askyesno("Confirmar", "¿Seguro que desea eliminar esta categoría?"):
             try:
                 self.categorias_service.eliminar_categoria(id_cat)

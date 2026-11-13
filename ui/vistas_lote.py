@@ -1,11 +1,19 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from domain.models.catalogo import Producto
 
-def mostrar_menu_lotes(ventana_padre, lote_service):
+def mostrar_menu_lotes(ventana_padre, lote_service, producto_service, ubicacion_service):
     ventana_lotes = tk.Toplevel(ventana_padre)
     ventana_lotes.title("Módulo de Lotes y Vencimientos")
     ventana_lotes.geometry("450x550") # Agrandé un poco la ventana para que entre todo
+
+    try:
+        productos = producto_service.obtener_todos_con_sku()
+        ubicaciones = ubicacion_service.obtener_todos()
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudieron cargar productos y sucursales: {e}", parent=ventana_lotes)
+        ventana_lotes.destroy()
+        return
 
     # 1. REGISTRAR LOTE
     frame_registro = ttk.LabelFrame(ventana_lotes, text="Registrar Nuevo Lote")
@@ -15,9 +23,14 @@ def mostrar_menu_lotes(ventana_padre, lote_service):
     entry_codigo = ttk.Entry(frame_registro)
     entry_codigo.grid(row=0, column=1, padx=5, pady=5)
 
-    ttk.Label(frame_registro, text="ID Producto:").grid(row=1, column=0, padx=5, pady=5)
-    entry_prod = ttk.Entry(frame_registro)
-    entry_prod.grid(row=1, column=1, padx=5, pady=5)
+    ttk.Label(frame_registro, text="Producto (SKU):").grid(row=1, column=0, padx=5, pady=5)
+    combo_producto = ttk.Combobox(
+        frame_registro,
+        values=[f'{producto["sku"]} - {producto["nombre"]}' for producto in productos],
+        state="readonly",
+        width=28
+    )
+    combo_producto.grid(row=1, column=1, padx=5, pady=5)
 
     ttk.Label(frame_registro, text="Vencimiento (YYYY-MM-DD):").grid(row=2, column=0, padx=5, pady=5)
     entry_venc = ttk.Entry(frame_registro)
@@ -28,10 +41,14 @@ def mostrar_menu_lotes(ventana_padre, lote_service):
     entry_cant = ttk.Entry(frame_registro)
     entry_cant.grid(row=3, column=1, padx=5, pady=5)
 
-    # NUEVO: Campo para el ID de la Ubicación (Local)
-    ttk.Label(frame_registro, text="ID Ubicación:").grid(row=4, column=0, padx=5, pady=5)
-    entry_ubi = ttk.Entry(frame_registro)
-    entry_ubi.grid(row=4, column=1, padx=5, pady=5)
+    ttk.Label(frame_registro, text="Sucursal:").grid(row=4, column=0, padx=5, pady=5)
+    combo_ubicacion = ttk.Combobox(
+        frame_registro,
+        values=[ubicacion["direccion"] or ubicacion["nombre"] for ubicacion in ubicaciones],
+        state="readonly",
+        width=28
+    )
+    combo_ubicacion.grid(row=4, column=1, padx=5, pady=5)
 
     lbl_estado = ttk.Label(frame_registro, text="", font=("Arial", 9))
     lbl_estado.grid(row=6, column=0, columnspan=2, pady=5)
@@ -42,15 +59,19 @@ def mostrar_menu_lotes(ventana_padre, lote_service):
             vencimiento = entry_venc.get()
             if len(vencimiento) != 10 or vencimiento[4] != "-" or vencimiento[7] != "-":
                 raise ValueError("La fecha debe tener el formato exacto YYYY-MM-DD (ej: 2027-12-31)")
-            prod_id = int(entry_prod.get())
-            prod_id = int(entry_prod.get())
+            indice_producto = combo_producto.current()
+            indice_ubicacion = combo_ubicacion.current()
+            if indice_producto == -1 or indice_ubicacion == -1:
+                raise ValueError("Seleccione un producto y una sucursal.")
+
+            producto_seleccionado = productos[indice_producto]
+            ubicacion_id = ubicaciones[indice_ubicacion]["id"]
             cantidad = int(entry_cant.get())
-            ubicacion_id = int(entry_ubi.get())
 
             prod_simulado = Producto(
-                id_producto=prod_id, 
-                sku=f"SKU-{prod_id}", 
-                nombre="Producto Simulado", 
+                id_producto=producto_seleccionado["id"],
+                sku=producto_seleccionado["sku"],
+                nombre=producto_seleccionado["nombre"],
                 precio_venta=0, 
                 costo=0, 
                 categoria=None, 
@@ -63,9 +84,9 @@ def mostrar_menu_lotes(ventana_padre, lote_service):
             lbl_estado.config(text="Lote y stock registrados con éxito", foreground="green")
             entry_codigo.delete(0, tk.END)
             entry_venc.delete(0, tk.END)
-            entry_prod.delete(0, tk.END)
+            combo_producto.set("")
             entry_cant.delete(0, tk.END)
-            entry_ubi.delete(0, tk.END)
+            combo_ubicacion.set("")
 
         except Exception as e:
             lbl_estado.config(text=f"Error: {e}", foreground="red")

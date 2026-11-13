@@ -10,11 +10,23 @@ class CategoriasDAO(BaseDAO):
         return [{"id": f[0], "nombre": f[1]} for f in filas]
 
     def guardar(self, nombre: str):
+        nombre = nombre.strip()
         conexion = self.get_conexion()
         cursor = conexion.cursor()
-        cursor.execute("INSERT INTO Categorias (nombre) VALUES (?)", (nombre,))
-        conexion.commit()
-        conexion.close()
+        try:
+            cursor.execute("BEGIN IMMEDIATE")
+            cursor.execute("SELECT nombre FROM Categorias")
+            nombres_existentes = cursor.fetchall()
+            if any(fila["nombre"].strip().casefold() == nombre.casefold() for fila in nombres_existentes):
+                raise ValueError("Ya existe una categoría con ese nombre.")
+
+            cursor.execute("INSERT INTO Categorias (nombre) VALUES (?)", (nombre,))
+            conexion.commit()
+        except Exception:
+            conexion.rollback()
+            raise
+        finally:
+            conexion.close()
 
     def eliminar(self, id_categoria: int):
         conexion = self.get_conexion()

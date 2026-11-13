@@ -5,6 +5,25 @@ class ProductoDao(BaseDAO):
     def __init__(self):
         super().__init__()
 
+    def obtener_todos(self):
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT id, nombre FROM Productos WHERE activo = 1 ORDER BY nombre")
+        filas = cursor.fetchall()
+        conexion.close()
+        return [{"id": fila["id"], "nombre": fila["nombre"]} for fila in filas]
+
+    def obtener_todos_con_sku(self):
+        conexion = self.get_conexion()
+        cursor = conexion.cursor()
+        cursor.execute("SELECT id, sku, nombre FROM Productos WHERE activo = 1 ORDER BY nombre")
+        filas = cursor.fetchall()
+        conexion.close()
+        return [
+            {"id": fila["id"], "sku": fila["sku"], "nombre": fila["nombre"]}
+            for fila in filas
+        ]
+
     def guardar(self, producto: Producto):
         conexion = self.get_conexion()
         cursor = conexion.cursor()

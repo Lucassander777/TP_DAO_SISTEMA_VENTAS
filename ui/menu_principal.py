@@ -28,22 +28,22 @@ def iniciar_interfaz(logistica_service, ventas_service, lote_service, compras_se
 
     # --- Funciones de apertura de ventanas ---
     def abrir_logistica():
-        mostrar_menu_logistica(ventana, logistica_service)
+        mostrar_menu_logistica(ventana, logistica_service, ubicacion_service, producto_service)
 
     def abrir_ventas():
-        mostrar_menu_ventas(ventana, ventas_service)
+        mostrar_menu_ventas(ventana, ventas_service, producto_service)
 
     def abrir_lotes():
-        mostrar_menu_lotes(ventana, lote_service)
+        mostrar_menu_lotes(ventana, lote_service, producto_service, ubicacion_service)
 
     def abrir_compras():
-        mostrar_menu_compras(ventana, compras_service)
+        mostrar_menu_compras(ventana, compras_service, producto_service, proveedores_service)
 
     def abrir_cliente():
         mostrar_menu_clientes(ventana, clientes_service)
 
     def abrir_auditoria():
-        mostrar_menu_auditoria(ventana, auditoria_service)
+        mostrar_menu_auditoria(ventana, auditoria_service, producto_service, ubicacion_service)
 
     def abrir_reporte():
         mostrar_menu_reportes(ventana, reportes_service)

@@ -28,11 +28,9 @@ class VistaABMProveedores(tk.Toplevel):
         marco_lista = ttk.LabelFrame(self, text="Proveedores Existentes")
         marco_lista.pack(padx=15, pady=5, fill="both", expand=True)
 
-        self.tree = ttk.Treeview(marco_lista, columns=("ID", "Razón Social", "CUIT"), show="headings", height=8)
-        self.tree.heading("ID", text="ID")
+        self.tree = ttk.Treeview(marco_lista, columns=("Razón Social", "CUIT"), show="headings", height=8)
         self.tree.heading("Razón Social", text="Razón Social")
         self.tree.heading("CUIT", text="CUIT")
-        self.tree.column("ID", width=40, anchor="center")
         self.tree.column("Razón Social", width=200)
         self.tree.column("CUIT", width=120, anchor="center")
         self.tree.pack(padx=10, pady=10, fill="both", expand=True)
@@ -46,7 +44,10 @@ class VistaABMProveedores(tk.Toplevel):
         
         proveedores = self.proveedores_service.obtener_todos()
         for prov in proveedores:
-            self.tree.insert("", tk.END, values=(prov["id"], prov["razon_social"], prov["cuit"]))
+            self.tree.insert(
+                "", tk.END, iid=str(prov["id"]),
+                values=(prov["razon_social"], prov["cuit"])
+            )
 
     def guardar(self):
         razon = self.entry_razon.get().strip()
@@ -66,7 +67,7 @@ class VistaABMProveedores(tk.Toplevel):
             messagebox.showwarning("Atención", "Seleccione un proveedor para eliminar.")
             return
         
-        id_prov = self.tree.item(seleccion[0])['values'][0]
+        id_prov = int(seleccion[0])
         if messagebox.askyesno("Confirmar", "¿Seguro que desea eliminar este proveedor?"):
             try:
                 self.proveedores_service.eliminar_proveedor(id_prov)

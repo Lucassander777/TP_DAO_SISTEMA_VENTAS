@@ -4,10 +4,18 @@ from tkinter import messagebox
 from datetime import datetime
 from domain.models.inventario import TipoMovimiento
 
-def mostrar_menu_compras(ventana_padre, compras_service):
+def mostrar_menu_compras(ventana_padre, compras_service, producto_service, proveedores_service):
     ventana_compras = tk.Toplevel(ventana_padre)
     ventana_compras.title("Módulo de Compras - Sugeridas y Manuales")
     ventana_compras.geometry("700x550")
+
+    try:
+        productos = producto_service.obtener_todos()
+        proveedores = proveedores_service.obtener_todos()
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudieron cargar productos y proveedores: {e}", parent=ventana_compras)
+        ventana_compras.destroy()
+        return
 
     # --- SECCIÓN 1: FALTANTES ---
     frame_sugeridas = ttk.LabelFrame(ventana_compras, text="Órdenes de Compra Sugeridas (Por debajo del stock mínimo)")
@@ -56,18 +64,28 @@ def mostrar_menu_compras(ventana_padre, compras_service):
     frame_manual.pack(pady=10, padx=10, fill="x")
 
     # Fila 0
-    ttk.Label(frame_manual, text="ID Producto:").grid(row=0, column=0, padx=5, pady=5)
-    entry_id_prod = ttk.Entry(frame_manual, width=10)
-    entry_id_prod.grid(row=0, column=1, padx=5, pady=5)
+    ttk.Label(frame_manual, text="Producto:").grid(row=0, column=0, padx=5, pady=5)
+    combo_producto = ttk.Combobox(
+        frame_manual,
+        values=[producto["nombre"] for producto in productos],
+        state="readonly",
+        width=18
+    )
+    combo_producto.grid(row=0, column=1, padx=5, pady=5)
 
     ttk.Label(frame_manual, text="Cantidad:").grid(row=0, column=2, padx=5, pady=5)
     entry_cant = ttk.Entry(frame_manual, width=10)
     entry_cant.grid(row=0, column=3, padx=5, pady=5)
 
     # Fila 1
-    ttk.Label(frame_manual, text="ID Proveedor:").grid(row=1, column=0, padx=5, pady=5)
-    entry_id_prov = ttk.Entry(frame_manual, width=10)
-    entry_id_prov.grid(row=1, column=1, padx=5, pady=5)
+    ttk.Label(frame_manual, text="Proveedor:").grid(row=1, column=0, padx=5, pady=5)
+    combo_proveedor = ttk.Combobox(
+        frame_manual,
+        values=[proveedor["razon_social"] for proveedor in proveedores],
+        state="readonly",
+        width=18
+    )
+    combo_proveedor.grid(row=1, column=1, padx=5, pady=5)
 
     ttk.Label(frame_manual, text="Costo Unit:").grid(row=1, column=2, padx=5, pady=5)
     entry_costo = ttk.Entry(frame_manual, width=10)
@@ -75,9 +93,15 @@ def mostrar_menu_compras(ventana_padre, compras_service):
 
     def registrar_compra_manual():
         try:
-            id_prod = int(entry_id_prod.get())
+            idx_producto = combo_producto.current()
+            idx_proveedor = combo_proveedor.current()
+            if idx_producto == -1 or idx_proveedor == -1:
+                messagebox.showwarning("Atención", "Seleccione un producto y un proveedor.", parent=ventana_compras)
+                return
+
+            id_prod = productos[idx_producto]["id"]
             cant = int(entry_cant.get())
-            id_prov = int(entry_id_prov.get())
+            id_prov = proveedores[idx_proveedor]["id"]
             costo = float(entry_costo.get())
             
             if cant <= 0 or costo <= 0:
@@ -123,9 +147,9 @@ def mostrar_menu_compras(ventana_padre, compras_service):
             messagebox.showinfo("Éxito", f"Compra registrada.\nSe guardó la orden y se sumaron {cant} unidades.", parent=ventana_compras)
             
             # Limpiamos los campos
-            entry_id_prod.delete(0, tk.END)
+            combo_producto.set("")
             entry_cant.delete(0, tk.END)
-            entry_id_prov.delete(0, tk.END)
+            combo_proveedor.set("")
             entry_costo.delete(0, tk.END)
             
             calcular_sugeridas()

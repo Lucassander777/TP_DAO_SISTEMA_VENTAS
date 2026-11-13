@@ -38,4 +38,10 @@ class ProductoService:
 
     def guardar(self, producto):
         # Método directo utilizado por la interfaz gráfica (VistaAltaProducto)
-        return self.producto_dao.guardar(producto)   
+        return self.producto_dao.guardar(producto)
+
+    def obtener_todos(self):
+        return self.producto_dao.obtener_todos()
+
+    def obtener_todos_con_sku(self):
+        return self.producto_dao.obtener_todos_con_sku()

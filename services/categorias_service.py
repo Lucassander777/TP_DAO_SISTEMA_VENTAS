@@ -8,7 +8,8 @@ class CategoriasService:
         return self.dao.obtener_todas()
 
     def guardar_categoria(self, nombre: str):
-        if not nombre.strip():
+        nombre = nombre.strip()
+        if not nombre:
             raise ValueError("El nombre de la categoría no puede estar vacío.")
         self.dao.guardar(nombre)
 
